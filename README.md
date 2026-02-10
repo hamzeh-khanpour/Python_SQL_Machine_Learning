@@ -4,6 +4,9 @@ Python_SQL_Machine_Learning
 
 ## 🎓 Certifications
 
+- **Databases and SQL for Data Science with Python** – Coursera  
+  📜 [View Certificate](https://coursera.org/verify/XXXXXX)
+
 - **Machine Learning Specialization** – Coursera  
   📜 [View Certificate](https://coursera.org/verify/XXXXXX)
 
