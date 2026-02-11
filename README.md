@@ -15,3 +15,6 @@ Python_SQL_Machine_Learning
   
 - **IBM Data Science Professional Certificate** – Coursera  
   📜 [View Certificate](https://coursera.org/verify/YYYYYY)
+
+- **Machine Learning with Python** – Coursera  
+  📜 [View Certificate](https://coursera.org/verify/YYYYYY)
