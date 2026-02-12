@@ -18,6 +18,3 @@ Python_SQL_Machine_Learning
 
 - **Machine Learning with Python** – Coursera  
   📜 [View Certificate](https://coursera.org/verify/YYYYYY)
-
-- **Data Analysis and Visualization with Power BI** – Coursera  
-  📜 [View Certificate](https://coursera.org/verify/YYYYYY)
