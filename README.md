@@ -21,3 +21,13 @@ Python_SQL_Machine_Learning
 
 - **Data Analysis and Visualization with Power BI** – Coursera  
   📜 [View Certificate](https://coursera.org/verify/YYYYYY)
+  
+  
+- **Microsoft Azure Data Scientist Associate (DP-100) Professional Certificate** – Coursera  
+  📜 [View Certificate](https://coursera.org/verify/YYYYYY)
+ 
+ 
+ 
+- **Microsoft Power BI Data Analyst Professional Certificate** – Coursera  
+  📜 [View Certificate](https://coursera.org/verify/YYYYYY)
+ 

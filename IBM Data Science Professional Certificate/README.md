@@ -13,6 +13,11 @@ Python_SQL_Machine_Learning
 - **Python for Data Science** – Coursera  
   📜 [View Certificate](https://coursera.org/verify/YYYYYY)
   
-  
 - **IBM Data Science Professional Certificate** – Coursera  
+  📜 [View Certificate](https://coursera.org/verify/YYYYYY)
+
+- **Machine Learning with Python** – Coursera  
+  📜 [View Certificate](https://coursera.org/verify/YYYYYY)
+
+- **Data Analysis and Visualization with Power BI** – Coursera  
   📜 [View Certificate](https://coursera.org/verify/YYYYYY)
