@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "cells": [
+    {
+      "type": "markdown",
+      "content": "# Regression - Experimenting with additional models\n\nIn the previous notebook, we used simple regression models to look at the relationship between features of a bike rentals dataset. In this notebook, we'll experiment with more complex models to improve our regression performance.\n\n1. Download [daily-bike-share.csv](https://raw.githubusercontent.com/MicrosoftLearning/mslearn-ml-basics/refs/heads/main/Labfiles/data/daily-bike-share.csv){:target=\"_blank\"} in a new browser tab, and save it on your local disk.\n2. Then use the **Upload Data** button at the top of this notebook to upload it.\n3. Run the next cell by clicking the **&#9658; Run** button to load the data and split it into training and test datasets."
+    },
+    {
+      "type": "python",
+      "content": "# Import modules we'll need for this notebook\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_squared_error, r2_score\nfrom sklearn.model_selection import train_test_split\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# load the training dataset\nbike_data = pd.read_csv('daily-bike-share.csv')\nbike_data['day'] = pd.DatetimeIndex(bike_data['dteday']).day\nnumeric_features = ['temp', 'atemp', 'hum', 'windspeed']\ncategorical_features = ['season','mnth','holiday','weekday','workingday','weathersit', 'day']\nbike_data[numeric_features + ['rentals']].describe()\nprint(bike_data.head())\n\n\n# Separate features and labels\n# After separating the dataset, we now have numpy arrays named **X** containing the features, and **y** containing the labels.\nX, y = bike_data[['season','mnth', 'holiday','weekday','workingday','weathersit','temp', 'atemp', 'hum', 'windspeed']].values, bike_data['rentals'].values\n\n# Split data 70%-30% into training set and test set\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)\n\nprint ('Training Set: %d rows\\nTest Set: %d rows' % (X_train.shape[0], X_test.shape[0]))\n"
+    },
+    {
+      "type": "markdown",
+      "content": "Now we have the following four datasets:\n\n- **X_train**: The feature values we'll use to train the model\n- **y_train**: The corresponding labels we'll use to train the model\n- **X_test**: The feature values we'll use to validate the model\n- **y_test**: The corresponding labels we'll use to validate the model\n\nNow we're ready to train a model by fitting a suitable regression algorithm to the training data. \n\n## Experiment with Algorithms\n\nThe linear-regression algorithm we used last time to train the model has some predictive capability, but there are many kinds of regression algorithm we could try, including:\n\n- **Linear algorithms**: Not just the Linear Regression algorithm we used above (which is technically an *Ordinary Least Squares* algorithm), but other variants such as *Lasso* and *Ridge*.\n- **Tree-based algorithms**: Algorithms that build a decision tree to reach a prediction.\n- **Ensemble algorithms**: Algorithms that combine the outputs of multiple base algorithms to improve generalizability.\n\n> **Note**: For a full list of Scikit-Learn estimators that encapsulate algorithms for supervised machine learning, see the [Scikit-Learn documentation](https://scikit-learn.org/stable/supervised_learning.html). There are many algorithms from which to choose, but for most real-world scenarios, the [Scikit-Learn estimator cheat sheet](https://scikit-learn.org/stable/tutorial/machine_learning_map/index.html) can help you find a suitable starting point. \n\n**Try Another Linear Algorithm**\n\nLet's try training our regression model by using a **Lasso** algorithm. We can do this by just changing the estimator in the training code."
+    },
+    {
+      "type": "python",
+      "content": "from sklearn.linear_model import Lasso\n\n# Fit a lasso model on the training set\nmodel = Lasso().fit(X_train, y_train)\nprint (model, \"\\n\")\n\n# Evaluate the model using the test data\npredictions = model.predict(X_test)\nmse = mean_squared_error(y_test, predictions)\nprint(\"MSE:\", mse)\nrmse = np.sqrt(mse)\nprint(\"RMSE:\", rmse)\nr2 = r2_score(y_test, predictions)\nprint(\"R2:\", r2)\n\n# Plot predicted vs actual\nplt.scatter(y_test, predictions)\nplt.xlabel('Actual Labels')\nplt.ylabel('Predicted Labels')\nplt.title('Daily Bike Share Predictions')\n# overlay the regression line\nz = np.polyfit(y_test, predictions, 1)\np = np.poly1d(z)\nplt.plot(y_test,p(y_test), color='magenta')\nplt.show()"
+    },
+    {
+      "type": "markdown",
+      "content": "### Try a Decision Tree Algorithm\n\nAs an alternative to a linear model, there's a category of algorithms for machine learning that uses a tree-based approach in which the features in the dataset are examined in a series of evaluations, each of which results in a *branch* in a *decision tree* based on the feature value. At the end of each series of branches are leaf-nodes with the predicted label value based on the feature values.\n\nIt's easiest to see how this works with an example. Let's train a Decision Tree regression model using the bike rental data. After training the model, the following code will print the model definition and a text representation of the tree it uses to predict label values."
+    },
+    {
+      "type": "python",
+      "content": "from sklearn.tree import DecisionTreeRegressor\nfrom sklearn.tree import export_text\n\n# Train the model\nmodel = DecisionTreeRegressor().fit(X_train, y_train)\nprint (model, \"\\n\")\n\n# Visualize the model tree\ntree = export_text(model)\nprint(tree)"
+    },
+    {
+      "type": "markdown",
+      "content": "So now we have a tree-based model, but is it any good? Let's evaluate it with the test data."
+    },
+    {
+      "type": "python",
+      "content": "# Evaluate the model using the test data\npredictions = model.predict(X_test)\nmse = mean_squared_error(y_test, predictions)\nprint(\"MSE:\", mse)\nrmse = np.sqrt(mse)\nprint(\"RMSE:\", rmse)\nr2 = r2_score(y_test, predictions)\nprint(\"R2:\", r2)\n\n# Plot predicted vs actual\nplt.scatter(y_test, predictions)\nplt.xlabel('Actual Labels')\nplt.ylabel('Predicted Labels')\nplt.title('Daily Bike Share Predictions')\n# overlay the regression line\nz = np.polyfit(y_test, predictions, 1)\np = np.poly1d(z)\nplt.plot(y_test,p(y_test), color='magenta')\nplt.show()"
+    },
+    {
+      "type": "markdown",
+      "content": "The tree-based model doesn't seem to have significantly improved over the linear model, so what else could we try?\n\n### Try an Ensemble Algorithm\n\nEnsemble algorithms work by combining multiple base estimators to produce an optimal model, either by applying an aggregate function to a collection of base models (sometimes referred to a *bagging*) or by building a sequence of models that build on one another to improve predictive performance (referred to as *boosting*).\n\nFor example, let's try a Random Forest model, which applies an averaging function to multiple Decision Tree models for a better overall model."
+    },
+    {
+      "type": "python",
+      "content": "from sklearn.ensemble import RandomForestRegressor\n\n# Train the model\nmodel = RandomForestRegressor().fit(X_train, y_train)\nprint (model, \"\\n\")\n\n# Evaluate the model using the test data\npredictions = model.predict(X_test)\nmse = mean_squared_error(y_test, predictions)\nprint(\"MSE:\", mse)\nrmse = np.sqrt(mse)\nprint(\"RMSE:\", rmse)\nr2 = r2_score(y_test, predictions)\nprint(\"R2:\", r2)\n\n# Plot predicted vs actual\nplt.scatter(y_test, predictions)\nplt.xlabel('Actual Labels')\nplt.ylabel('Predicted Labels')\nplt.title('Daily Bike Share Predictions')\n# overlay the regression line\nz = np.polyfit(y_test, predictions, 1)\np = np.poly1d(z)\nplt.plot(y_test,p(y_test), color='magenta')\nplt.show()"
+    },
+    {
+      "type": "markdown",
+      "content": "For good measure, let's also try a *boosting* ensemble algorithm. We'll use a Gradient Boosting estimator, which like a Random Forest algorithm builds multiple trees; but instead of building them all independently and taking the average result, each tree is built on the outputs of the previous one in an attempt to incrementally reduce the *loss* (error) in the model."
+    },
+    {
+      "type": "python",
+      "content": "# Train the model\nfrom sklearn.ensemble import GradientBoostingRegressor\n\n# Fit a lasso model on the training set\nmodel = GradientBoostingRegressor().fit(X_train, y_train)\nprint (model, \"\\n\")\n\n# Evaluate the model using the test data\npredictions = model.predict(X_test)\nmse = mean_squared_error(y_test, predictions)\nprint(\"MSE:\", mse)\nrmse = np.sqrt(mse)\nprint(\"RMSE:\", rmse)\nr2 = r2_score(y_test, predictions)\nprint(\"R2:\", r2)\n\n# Plot predicted vs actual\nplt.scatter(y_test, predictions)\nplt.xlabel('Actual Labels')\nplt.ylabel('Predicted Labels')\nplt.title('Daily Bike Share Predictions')\n# overlay the regression line\nz = np.polyfit(y_test, predictions, 1)\np = np.poly1d(z)\nplt.plot(y_test,p(y_test), color='magenta')\nplt.show()"
+    },
+    {
+      "type": "markdown",
+      "content": "## Summary\n\nHere, we've tried a number of new regression algorithms to improve performance. In our next notebook, we'll look at *tuning* these algorithms to improve performance."
+    }
+  ]
+}

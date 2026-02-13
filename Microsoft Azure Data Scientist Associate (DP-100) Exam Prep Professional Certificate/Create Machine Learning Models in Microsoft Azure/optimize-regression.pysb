@@ -1,0 +1,81 @@
+{
+  "version": "1.0",
+  "cells": [
+    {
+      "type": "markdown",
+      "content": "# Regression - Optimize models\n\nIn the previous notebook, we used complex regression models to look at the relationship between features of a bike rentals dataset. In this notebook, we'll see if we can improve the performance of these models even further.\n\n1. Download [daily-bike-share.csv](https://raw.githubusercontent.com/MicrosoftLearning/mslearn-ml-basics/refs/heads/main/Labfiles/data/daily-bike-share.csv){:target=\"_blank\"} in a new browser tab, and save it on your local disk.\n2. Then use the **Upload Data** button at the top of this notebook to upload it.\n3. Run the next cell by clicking the **&#9658; Run** button to load the data and split it into training and test datasets."
+    },
+    {
+      "type": "python",
+      "content": "# Import modules we'll need for this notebook\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_squared_error, r2_score\nfrom sklearn.model_selection import train_test_split\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# load the training dataset\nbike_data = pd.read_csv('daily-bike-share.csv')\nbike_data['day'] = pd.DatetimeIndex(bike_data['dteday']).day\nnumeric_features = ['temp', 'atemp', 'hum', 'windspeed']\ncategorical_features = ['season','mnth','holiday','weekday','workingday','weathersit', 'day']\nbike_data[numeric_features + ['rentals']].describe()\nprint(bike_data.head())\n\n\n# Separate features and labels\n# After separating the dataset, we now have numpy arrays named **X** containing the features, and **y** containing the labels.\nX, y = bike_data[['season','mnth', 'holiday','weekday','workingday','weathersit','temp', 'atemp', 'hum', 'windspeed']].values, bike_data['rentals'].values\n\n# Split data 70%-30% into training set and test set\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)\n\nprint ('Training Set: %d rows\\nTest Set: %d rows' % (X_train.shape[0], X_test.shape[0]))\n"
+    },
+    {
+      "type": "markdown",
+      "content": "Now we have the following four datasets:\n\n- **X_train**: The feature values we'll use to train the model\n- **y_train**: The corresponding labels we'll use to train the model\n- **X_test**: The feature values we'll use to validate the model\n- **y_test**: The corresponding labels we'll use to validate the model\n\nNow we're ready to train a model by fitting a *boosting* ensemble algorithm, as in our last notebook. Recall that a Gradient Boosting estimator is like a Random Forest algorithm, but instead of building all trees independently and taking the average result, each tree is built on the outputs of the previous one in an attempt to incrementally reduce the *loss* (error) in the model."
+    },
+    {
+      "type": "python",
+      "content": "# Train the model\nfrom sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor\n\n\n# Fit a lasso model on the training set\nmodel = GradientBoostingRegressor().fit(X_train, y_train)\nprint (model, \"\\n\")\n\n# Evaluate the model using the test data\npredictions = model.predict(X_test)\nmse = mean_squared_error(y_test, predictions)\nprint(\"MSE:\", mse)\nrmse = np.sqrt(mse)\nprint(\"RMSE:\", rmse)\nr2 = r2_score(y_test, predictions)\nprint(\"R2:\", r2)\n\n# Plot predicted vs actual\nplt.scatter(y_test, predictions)\nplt.xlabel('Actual Labels')\nplt.ylabel('Predicted Labels')\nplt.title('Daily Bike Share Predictions')\n# overlay the regression line\nz = np.polyfit(y_test, predictions, 1)\np = np.poly1d(z)\nplt.plot(y_test,p(y_test), color='magenta')\nplt.show()"
+    },
+    {
+      "type": "markdown",
+      "content": "## Optimize Hyperparameters\n\nTake a look at the **GradientBoostingRegressor** estimator definition in the preceding output and note that it, like the other estimators we tried previously, includes a large number of parameters that control the way the model is trained. In machine learning, the term *parameters* refers to values that can be determined from data; values that you specify to affect the behavior of a training algorithm are more correctly referred to as *hyperparameters*.\n\nThe specific hyperparameters for an estimator vary based on the algorithm that the estimator encapsulates. In the case of the **GradientBoostingRegressor** estimator, the algorithm is an ensemble that combines multiple decision trees to create an overall predictive model. You can learn about the hyperparameters for this estimator in the [Scikit-Learn documentation](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html).\n\nWe won't go into the details of each hyperparameter here, but they work together to affect the way the algorithm trains a model. In many cases, the default values provided by Scikit-Learn will work well, but there could be some advantage in modifying hyperparameters to get better predictive performance or reduce training time.\n\nSo how do you know what hyperparameter values you should use? Well, in the absence of a deep understanding of how the underlying algorithm works, you'll need to experiment. Fortunately, SciKit-Learn provides a way to *tune* hyperparameters by trying multiple combinations and finding the best result for a given performance metric.\n\nLet's try using a *grid search* approach to try combinations from a grid of possible values for the **learning_rate** and **n_estimators** hyperparameters of the **GradientBoostingRegressor** estimator."
+    },
+    {
+      "type": "python",
+      "content": "from sklearn.model_selection import GridSearchCV\nfrom sklearn.metrics import make_scorer, r2_score\n\n# Use a Gradient Boosting algorithm\nalg = GradientBoostingRegressor()\n\n# Try these hyperparameter values\nparams = {\n 'learning_rate': [0.1, 0.5, 1.0],\n 'n_estimators' : [50, 100, 150]\n }\n\n# Find the best hyperparameter combination to optimize the R2 metric\nscore = make_scorer(r2_score)\ngridsearch = GridSearchCV(alg, params, scoring=score, cv=3, return_train_score=True)\ngridsearch.fit(X_train, y_train)\nprint(\"Best parameter combination:\", gridsearch.best_params_, \"\\n\")\n\n# Get the best model\nmodel=gridsearch.best_estimator_\nprint(model, \"\\n\")\n\n# Evaluate the model using the test data\npredictions = model.predict(X_test)\nmse = mean_squared_error(y_test, predictions)\nprint(\"MSE:\", mse)\nrmse = np.sqrt(mse)\nprint(\"RMSE:\", rmse)\nr2 = r2_score(y_test, predictions)\nprint(\"R2:\", r2)\n\n# Plot predicted vs actual\nplt.scatter(y_test, predictions)\nplt.xlabel('Actual Labels')\nplt.ylabel('Predicted Labels')\nplt.title('Daily Bike Share Predictions')\n# overlay the regression line\nz = np.polyfit(y_test, predictions, 1)\np = np.poly1d(z)\nplt.plot(y_test,p(y_test), color='magenta')\nplt.show()"
+    },
+    {
+      "type": "markdown",
+      "content": "> **Note**: The use of random values in the Gradient Boosting algorithm results in slightly different metrics each time. In this case, the best model produced by hyperparameter tuning is unlikely to be significantly better than one trained with the default hyperparameter values; but it's still useful to know about the hyperparameter tuning technique!\n\n**Preprocess the Data**\n\nWe trained a model with data that we loaded straight from a source file, with only moderately successful results.\n\nIn practice, it's common to perform some preprocessing of the data to make it easier for the algorithm to fit a model to it. There's a huge range of preprocessing transformations you can perform to get your data ready for modeling, but we'll limit ourselves to a few common techniques:\n\n### Scaling numeric features\n\nNormalizing numeric features so they're on the same scale prevents features with large values from producing coefficients that disproportionately affect the predictions. For example, suppose your data includes the following numeric features:\n\n| A |  B  |  C  |\n| - | --- | --- |\n| 3 | 480 | 65  |\n    \nNormalizing these features to the same scale may result in the following values (assuming A contains values from 0 to 10, B contains values from 0 to 1000, and C contains values from 0 to 100):\n\n|  A  |  B  |  C  |\n| --  | --- | --- |\n| 0.3 | 0.48| 0.65|\n\nThere are multiple ways you can scale numeric data, such as calculating the minimum and maximum values for each column and assigning a proportional value between 0 and 1, or by using the mean and standard deviation of a normally distributed variable to maintain the same *spread* of values on a different scale.\n\n### Encoding categorical variables\n\nMachine-learning models work best with numeric features rather than text values, so you generally need to convert categorical features into numeric representations. For example, suppose your data includes the following categorical feature:\n\n| Size |\n| ---- |\n|  S   |\n|  M   |\n|  L   |\n\nYou can apply *ordinal encoding* to substitute a unique integer value for each category, like this:\n\n| Size |\n| ---- |\n|  0   |\n|  1   |\n|  2   |\n\nAnother common technique is to use *one-hot encoding* to create individual binary (0 or 1) features for each possible category value. For example, you could use one-hot encoding to translate the possible categories into binary columns like this:\n\n|  Size_S  |  Size_M  |  Size_L  |\n| -------  | -------- | -------- |\n|    1     |     0    |    0     |\n|    0     |     1    |    0     |\n|    0     |     0    |    1     |\n\nTo apply these preprocessing transformations to the bike rental, we'll make use of a Scikit-Learn feature named *pipelines*. These pipelines allow us to define a set of preprocessing steps that end with an algorithm. You can then fit the entire pipeline to the data, so that the model encapsulates all of the preprocessing steps as well as the regression algorithm. This is useful, because when we want to use the model to predict values from new data, we need to apply the same transformations (based on the same statistical distributions and category encodings used with the training data).\n\n> **Note**: The term *pipeline* is used extensively in machine learning, often to mean very different things! In this context, we're using it to refer to pipeline objects in Scikit-Learn, but you might see it used elsewhere to mean something else."
+    },
+    {
+      "type": "python",
+      "content": "# Train the model\nfrom sklearn.compose import ColumnTransformer\nfrom sklearn.pipeline import Pipeline\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.preprocessing import StandardScaler, OneHotEncoder\nfrom sklearn.linear_model import LinearRegression\nimport numpy as np\n\n# Define preprocessing for numeric columns (scale them)\nnumeric_features = [6,7,8,9]\nnumeric_transformer = Pipeline(steps=[\n    ('scaler', StandardScaler())])\n\n# Define preprocessing for categorical features (encode them)\ncategorical_features = [0,1,2,3,4,5]\ncategorical_transformer = Pipeline(steps=[\n    ('onehot', OneHotEncoder(handle_unknown='ignore'))])\n\n# Combine preprocessing steps\npreprocessor = ColumnTransformer(\n    transformers=[\n        ('num', numeric_transformer, numeric_features),\n        ('cat', categorical_transformer, categorical_features)])\n\n# Create preprocessing and training pipeline\npipeline = Pipeline(steps=[('preprocessor', preprocessor),\n                           ('regressor', GradientBoostingRegressor())])\n\n\n# fit the pipeline to train a linear regression model on the training set\nmodel = pipeline.fit(X_train, (y_train))\nprint (model)"
+    },
+    {
+      "type": "markdown",
+      "content": "OK, the model is trained, including the preprocessing steps. Let's see how it performs with the validation data."
+    },
+    {
+      "type": "python",
+      "content": "# Get predictions\npredictions = model.predict(X_test)\n\n# Display metrics\nmse = mean_squared_error(y_test, predictions)\nprint(\"MSE:\", mse)\nrmse = np.sqrt(mse)\nprint(\"RMSE:\", rmse)\nr2 = r2_score(y_test, predictions)\nprint(\"R2:\", r2)\n\n# Plot predicted vs actual\nplt.scatter(y_test, predictions)\nplt.xlabel('Actual Labels')\nplt.ylabel('Predicted Labels')\nplt.title('Daily Bike Share Predictions')\nz = np.polyfit(y_test, predictions, 1)\np = np.poly1d(z)\nplt.plot(y_test,p(y_test), color='magenta')\nplt.show()"
+    },
+    {
+      "type": "markdown",
+      "content": "The pipeline is composed of the transformations and the algorithm used to train the model. To try an alternative algorithm, you can just change that step to a different kind of estimator."
+    },
+    {
+      "type": "python",
+      "content": "# Use a different estimator in the pipeline\npipeline = Pipeline(steps=[('preprocessor', preprocessor),\n                           ('regressor', RandomForestRegressor())])\n\n\n# fit the pipeline to train a linear regression model on the training set\nmodel = pipeline.fit(X_train, (y_train))\nprint (model, \"\\n\")\n\n# Get predictions\npredictions = model.predict(X_test)\n\n# Display metrics\nmse = mean_squared_error(y_test, predictions)\nprint(\"MSE:\", mse)\nrmse = np.sqrt(mse)\nprint(\"RMSE:\", rmse)\nr2 = r2_score(y_test, predictions)\nprint(\"R2:\", r2)\n\n# Plot predicted vs actual\nplt.scatter(y_test, predictions)\nplt.xlabel('Actual Labels')\nplt.ylabel('Predicted Labels')\nplt.title('Daily Bike Share Predictions - Preprocessed')\nz = np.polyfit(y_test, predictions, 1)\np = np.poly1d(z)\nplt.plot(y_test,p(y_test), color='magenta')\nplt.show()"
+    },
+    {
+      "type": "markdown",
+      "content": "We've now seen a number of common techniques used to train predictive models for regression. In a real project, you'd likely try a few more algorithms, hyperparameters, and preprocessing transformations; but by now, you should have gotten the general idea. Let's explore how you can use the trained model with new data.\n\n### Use the Trained Model\n\nFirst, let's save the model."
+    },
+    {
+      "type": "python",
+      "content": "import joblib\n\n# Save the model as a pickle file\nfilename = './bike-share.pkl'\njoblib.dump(model, filename)"
+    },
+    {
+      "type": "markdown",
+      "content": "Now, we can load it whenever we need it and use it to predict labels for new data. This is often called *scoring* or *inferencing*."
+    },
+    {
+      "type": "python",
+      "content": "# Load the model from the file\nloaded_model = joblib.load(filename)\n\n# Create a numpy array containing a new observation (for example tomorrow's seasonal and weather forecast information)\nX_new = np.array([[1,1,0,3,1,1,0.226957,0.22927,0.436957,0.1869]]).astype('float64')\nprint ('New sample: {}'.format(list(X_new[0])))\n\n# Use the model to predict tomorrow's rentals\nresult = loaded_model.predict(X_new)\nprint('Prediction: {:.0f} rentals'.format(np.round(result[0])))"
+    },
+    {
+      "type": "markdown",
+      "content": "The model's **predict** method accepts an array of observations, so you can use it to generate multiple predictions as a batch. For example, suppose you have a weather forecast for the next five days; you could use the model to predict bike rentals for each day based on the expected weather conditions."
+    },
+    {
+      "type": "python",
+      "content": "# An array of features based on five-day weather forecast\nX_new = np.array([[0,1,1,0,0,1,0.344167,0.363625,0.805833,0.160446],\n                  [0,1,0,1,0,1,0.363478,0.353739,0.696087,0.248539],\n                  [0,1,0,2,0,1,0.196364,0.189405,0.437273,0.248309],\n                  [0,1,0,3,0,1,0.2,0.212122,0.590435,0.160296],\n                  [0,1,0,4,0,1,0.226957,0.22927,0.436957,0.1869]])\n\n# Use the model to predict rentals\nresults = loaded_model.predict(X_new)\nprint('5-day rental predictions:')\nfor prediction in results:\n    print(np.round(prediction))"
+    },
+    {
+      "type": "markdown",
+      "content": "## Summary\n\nThis concludes the notebooks for this module on regression. In this notebook, we ran a complex regression, tuned it, saved the model, and used it to predict outcomes for the future."
+    }
+  ]
+}
