@@ -41,3 +41,8 @@ Python_SQL_Machine_Learning
 - **Microsoft Azure Machine Learning for Data Scientists** – Coursera  
   📜 [View Certificate](https://coursera.org/verify/YYYYYY)
   
+
+
+  
+- **Perform data science with Azure Databricks** – Coursera  
+  📜 [View Certificate](https://coursera.org/verify/YYYYYY)
