@@ -45,7 +45,9 @@ Python_SQL_Machine_Learning
 
   
 - **Perform data science with Azure Databricks** – Coursera  
-  📜 [View Certificate]([https://www.coursera.org/account/accomplishments/verify/FQYGCDM4UAN9](https://www.coursera.org/account/accomplishments/verify/FQYGCDM4UAN9))
+  📜 [View Certificate](https://www.coursera.org/account/accomplishments/verify/FQYGCDM4UAN9)
+
+
 
 
 
