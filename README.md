@@ -1,6 +1,6 @@
 ---
 
-# Python SQL Machine Learning | Microsoft Power BI | Microsoft Azure
+# Python | SQL | Machine Learning | Microsoft Power BI | Microsoft Azure
 
 A structured hands-on learning repository covering **Data Analysis with Python, SQL for Data Science, Machine Learning fundamentals, Power BI, and Microsoft Azure**.
 
