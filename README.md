@@ -1,5 +1,10 @@
-# Python_SQL_Machine_Learning
-Python_SQL_Machine_Learning
+---
+
+# Python SQL Machine Learning | Microsoft Power BI | Microsoft Azure
+
+A structured hands-on learning repository covering **Data Analysis with Python, SQL for Data Science, Machine Learning fundamentals, Power BI, and Microsoft Azure**.
+
+This repository contains practical notebooks and exercises designed to build strong foundational and applied data skills.
 
 
 ## 🎓 Certifications
@@ -31,38 +36,17 @@ Python_SQL_Machine_Learning
   📜 [View Certificate](https://coursera.org/verify/YYYYYY)
   
   
-  
 - **Microsoft Azure Data Scientist Associate (DP-100) Exam Prep Professional Certificate** – Coursera  
   📜 [View Certificate](https://coursera.org/verify/YYYYYY)
-  
-
 
   
 - **Microsoft Azure Machine Learning for Data Scientists** – Coursera  
   📜 [View Certificate](https://coursera.org/verify/YYYYYY)
 
 
-
-  
 - **Perform data science with Azure Databricks** – Coursera  
   📜 [View Certificate](https://www.coursera.org/account/accomplishments/verify/FQYGCDM4UAN9)
 
-
-
-
-
-
-  Perfect — let’s make it clean, structured, and aligned with a **standard professional GitHub README format** (clear sections, badges optional, structured layout).
-
-You can copy-paste this directly into your `README.md`.
-
----
-
-# Python SQL Machine Learning | Microsoft Power BI | Microsoft Azure
-
-A structured hands-on learning repository covering **Data Analysis with Python, SQL for Data Science, Machine Learning fundamentals, Power BI, and Microsoft Azure**.
-
-This repository contains practical notebooks and exercises designed to build strong foundational and applied data skills.
 
 ---
 
