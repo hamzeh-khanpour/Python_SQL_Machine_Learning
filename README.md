@@ -48,6 +48,10 @@ This repository contains practical notebooks and exercises designed to build str
   📜 [View Certificate](https://www.coursera.org/account/accomplishments/verify/FQYGCDM4UAN9)
 
 
+
+- **Build and Operate Machine Learning Solutions with Azure** – Coursera  
+  📜 [View Certificate](https://www.coursera.org/account/accomplishments/verify/FQYGCDM4UAN9)
+
 ---
 
 ## 📌 Overview
